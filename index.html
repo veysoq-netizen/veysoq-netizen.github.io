@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denis | Bio</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: rgba(255, 255, 255, 0.05);
+  --text: #eaeaf0;
+  --muted: #9a9aa7;
+  --accent: #6a8cff;
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Глобальные настройки */
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Montserrat', sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  /* ЗАПРЕТ ВЫДЕЛЕНИЯ ТЕКСТА */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ЖИВОЙ АНИМИРОВАННЫЙ ФОН */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: 
+    radial-gradient(circle at 15% 25%, rgba(106, 140, 255, 0.1) 0%, transparent 35%),
+    radial-gradient(circle at 85% 75%, rgba(147, 106, 255, 0.1) 0%, transparent 35%);
+  z-index: -2;
+  animation: bgPulse 8s infinite alternate ease-in-out;
+}
+
+@keyframes bgPulse {
+  from { transform: scale(1); opacity: 0.8; }
+  to { transform: scale(1.2); opacity: 1; }
+}
+
+/* ПОЛОСА ПРОГРЕССА СКРОЛЛА */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: var(--accent);
+  width: 0%;
+  z-index: 1000;
+  box-shadow: 0 0 15px var(--accent);
+}
+
+/* ЭКРАН ПРИВЕТСТВИЯ */
+#intro {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: var(--bg);
+  z-index: 100;
+  transition: opacity .8s cubic-bezier(0.4, 0, 0.2, 1), transform .8s ease;
+}
+
+#intro.hide {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.05);
+}
+
+/* Анимация текста в интро */
+#greeting {
+  font-size: 2.4em;
+  font-weight: 600;
+  margin-bottom: 12px;
+  opacity: 0;
+  transform: translateY(40px);
+  animation: textUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes textUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#tap { 
+  font-size: .9em; 
+  opacity: .5; 
+  letter-spacing: 1px;
+  animation: blink 2s infinite; 
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.6; }
+}
+
+/* КОНТЕНТ */
+main {
+  max-width: 450px;
+  margin: auto;
+  padding: 80px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.section {
+  margin-bottom: 35px;
+  opacity: 0;
+  transform: translateY(25px);
+  transition: .8s ease-out;
+}
+
+.section.show {
+  opacity: 1;
+  transform: none;
+}
+
+.title {
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-size: 0.8em;
+  padding-left: 5px;
+}
+
+/* КАРТОЧКА */
+.card {
+  background: var(--card);
+  border-radius: 22px;
+  padding: 24px;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* АВАТАРКА */
+.avatar-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 50px;
+}
+
+.avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--accent);
+  padding: 6px;
+  position: relative;
+  animation: mainPulse 3s infinite ease-in-out;
+}
+
+@keyframes mainPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(106, 140, 255, 0.2); transform: scale(1); }
+  50% { box-shadow: 0 0 50px rgba(106, 140, 255, 0.5); transform: scale(1.03); }
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* КНОПКИ */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  padding: 16px;
+  border-radius: 16px;
+  font-weight: 600;
+  transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  margin-top: 10px;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--glass-border);
+}
+
+.btn:active { transform: scale(0.95); }
+.btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+/* СНЕГ */
+.snow {
+  position: fixed;
+  background: white;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes fall {
+  from { top: -10px; }
+  to { top: 110vh; }
+}
+
+@keyframes sway {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(25px); }
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="intro">
+  <div id="greeting"></div>
+  <div id="tap">нажмите в любое место</div>
+</div>
+
+<main>
+  <div class="avatar-wrap">
+    <div class="avatar">
+      <img src="https://raw.githubusercontent.com/veysoq-netizen/veysoq-netizen.github.io/main/1768672024094.jpg" alt="Avatar">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="title">Кто я</div>
+    <div class="card">
+      <p><span style="color:var(--muted)">Имя:</span> <strong>Денис</strong></p>
+      <p style="margin: 8px 0;"><span style="color:var(--muted)">Возраст:</span> <strong>15 лет</strong></p>
+      <p><span style="color:var(--muted)">Локация:</span> <strong>Россия</strong></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="title">Игровые интересы</div>
+    <div class="card" style="line-height: 1.6;">
+      Brawl Stars, PUBG Mobile, Valorant, DDNet. <br>
+      Активно участвую в троллинг-чатах.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="title">Связь</div>
+    <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+      <a href="https://t.me/vesomiy_canal" class="btn">
+        <i class="fab fa-telegram"></i> Мой канал
+      </a>
+      <a href="https://t.me/BECOMbIU" class="btn btn-secondary">
+        <i class="fas fa-paper-plane"></i> Написать в ЛС
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="title">Поддержка</div>
+    <div class="card">
+      <p style="font-size: 0.85em; margin-bottom: 15px; color: var(--muted); text-align: center;">
+        Если хочешь поддержать моё творчество через Cryptobot
+      </p>
+      <a href="http://t.me/send?start=IVAWgsxu9eaD" class="btn" style="background: #24a1de;">
+        <i class="fas fa-wallet"></i> Отправить USDT
+      </a>
+    </div>
+  </div>
+</main>
+
+<script>
+/* 1. ПРИВЕТСТВИЕ С ТАЙПИНГОМ */
+const hours = new Date().getHours();
+let welcomeText = "Доброй ночи";
+if(hours >= 6 && hours < 12) welcomeText = "Доброе утро";
+else if(hours >= 12 && hours < 18) welcomeText = "Добрый день";
+else if(hours >= 18) welcomeText = "Добрый вечер";
+
+let charIndex = 0;
+const greetingElement = document.getElementById("greeting");
+function typeWriter() {
+  if (charIndex <= welcomeText.length) {
+    greetingElement.textContent = welcomeText.slice(0, charIndex++);
+    setTimeout(typeWriter, 100);
+  }
+}
+typeWriter();
+
+/* 2. ВХОД И УДАЛЕНИЕ ИНТРО */
+const intro = document.getElementById("intro");
+document.body.addEventListener('click', () => {
+  intro.classList.add("hide");
+  // Удаляем элемент через 800мс после начала анимации скрытия
+  setTimeout(() => {
+    intro.remove();
+  }, 800);
+}, { once: true });
+
+/* 3. ПОЯВЛЕНИЕ БЛОКОВ ПРИ СКРОЛЛЕ */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) entry.target.classList.add("show");
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll(".section").forEach(section => observer.observe(section));
+
+/* 4. ОБНОВЛЕНИЕ ИНДИКАТОРА СКРОЛЛА (Оптимизировано) */
+let isScrolling = false;
+window.addEventListener('scroll', () => {
+  if (!isScrolling) {
+    window.requestAnimationFrame(() => {
+      const winScroll = window.scrollY || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById("progress").style.width = scrolled + "%";
+      isScrolling = false;
+    });
+    isScrolling = true;
+  }
+});
+
+/* 5. СОЗДАНИЕ СНЕГА С ПОКАЧИВАНИЕМ */
+function createSnow() {
+  const snowCount = 30;
+  const fragment = document.createDocumentFragment();
+  
+  for(let i=0; i<snowCount; i++){
+    const flake = document.createElement("div");
+    flake.className = "snow";
+    
+    const size = Math.random() * 4 + 2;
+    const duration = 10 + Math.random() * 15;
+    const swayDuration = 3 + Math.random() * 4;
+    const delay = Math.random() * 10;
+    
+    flake.style.width = `${size}px`;
+    flake.style.height = `${size}px`;
+    flake.style.left = Math.random() * 100 + "vw";
+    flake.style.opacity = Math.random() * 0.5 + 0.3;
+    
+    // Две анимации: падение и покачивание
+    flake.style.animation = `
+      fall ${duration}s ${delay}s linear infinite,
+      sway ${swayDuration}s ease-in-out infinite
+    `;
+    
+    fragment.appendChild(flake);
+  }
+  document.body.appendChild(fragment);
+}
+createSnow();
+</script>
+
+</body>
+</html>
