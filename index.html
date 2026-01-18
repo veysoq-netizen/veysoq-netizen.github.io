@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denis | Bio & Games</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:italic&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: rgba(255, 255, 255, 0.05);
+  --text: #eaeaf0;
+  --muted: #9a9aa7;
+  --accent: #6a8cff;
+  --win: #00ff88;
+  --lose: #ff4757;
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ФОН */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(106, 140, 255, 0.05) 0%, transparent 80%);
+  z-index: -2;
+}
+
+/* UI HEADER */
+.header-ui {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+}
+.balance-btn {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid var(--accent);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: var(--win);
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
+}
+.balance-btn:active { transform: scale(0.95); }
+.balance-btn.cooldown { border-color: var(--muted); color: var(--muted); cursor: not-allowed; box-shadow: none; }
+
+/* СНЕЖИНКИ */
+.snowflake {
+  position: fixed;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes fall {
+  0% { transform: translateY(-10vh); opacity: 0; }
+  10% { opacity: 0.8; }
+  100% { transform: translateY(110vh); opacity: 0.1; }
+}
+@keyframes sway { 0% { margin-left: 0px; } 100% { margin-left: 35px; } }
+
+/* СЛАЙДЕР */
+#slider {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  width: 300vw;
+  height: 100vh;
+  transform: translateX(-100vw);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.screen {
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 60px 20px 80px 20px;
+}
+
+/* ИНТРО */
+#intro {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: var(--bg);
+  z-index: 200;
+  transition: 0.8s ease;
+}
+#intro.hide { opacity: 0; pointer-events: none; }
+#greeting { font-size: 2.2em; font-weight: 600; margin-bottom: 10px; }
+
+/* ПАГИНАЦИЯ */
+.pagination {
+  position: fixed;
+  bottom: 30px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  z-index: 50;
+  pointer-events: none;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.dot.active { background: var(--accent); transform: scale(1.3); box-shadow: 0 0 10px var(--accent); }
+
+/* КАРТОЧКИ */
+.card {
+  background: var(--card);
+  border-radius: 26px;
+  padding: 22px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  margin-bottom: 25px;
+}
+
+.title { color: var(--accent); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; text-align: center; }
+
+/* АВАТАР */
+.avatar-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+.avatar { 
+  width: 110px; height: 110px; 
+  border-radius: 50%; 
+  border: 2px solid var(--accent); 
+  padding: 5px; margin-bottom: 15px; 
+  background: var(--bg);
+  animation: pulse 4s infinite ease-in-out;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(106, 140, 255, 0); transform: scale(1); }
+  50% { box-shadow: 0 0 20px rgba(106, 140, 255, 0.4); transform: scale(1.03); }
+}
+.nickname { font-size: 1.2em; font-weight: 600; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 10px rgba(106, 140, 255, 0.5); }
+.info-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; }
+.info-label { color: var(--muted); }
+
+/* ЛОГИН И ЭЛЕМЕНТЫ */
+.auth-container { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+.input-field {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--glass-border);
+  padding: 12px;
+  border-radius: 12px;
+  color: white;
+  outline: none;
+  text-align: center;
+  transition: 0.3s;
+}
+.input-field:focus { border-color: var(--accent); }
+.btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--accent); color: white; text-decoration: none; padding: 14px; border-radius: 14px; font-weight: 600; font-size: 0.9em; border: none; width: 100%; cursor: pointer; transition: 0.2s; }
+.btn:active { transform: scale(0.98); }
+.btn-secondary { background: rgba(255, 255, 255, 0.05); }
+
+/* ИГРЫ */
+.games-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.game-btn {
+    background: rgba(106, 140, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 15px 5px;
+    text-align: center;
+    font-size: 0.7em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    color: var(--text);
+}
+.game-btn:hover { background: var(--accent); color: #fff; }
+.game-btn.locked { opacity: 0.5; cursor: not-allowed; }
+
+/* ИНТЕРФЕЙС МИН */
+#mines_interface { display: none; flex-direction: column; gap: 10px; }
+.mines-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 15px 0;
+    pointer-events: none; /* Блокируем до старта */
+    opacity: 0.5;
+}
+.mines-grid.active { pointer-events: all; opacity: 1; }
+.cell {
+    aspect-ratio: 1;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+    transition: 0.2s;
+    border: 1px solid transparent;
+}
+.cell:active { transform: scale(0.9); }
+.cell.revealed { background: rgba(0,0,0,0.5); }
+.cell.win { background: var(--win); color: #000; box-shadow: 0 0 10px var(--win); }
+.cell.lose { background: var(--lose); color: #fff; box-shadow: 0 0 10px var(--lose); }
+
+/* ЛИДЕРБОРД */
+.leaderboard-list { display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; }
+.lb-item {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 10px;
+    font-size: 0.8em;
+}
+.lb-rank { color: var(--accent); font-weight: bold; margin-right: 10px; width: 20px; }
+.lb-name { flex: 1; text-align: left; }
+.lb-bal { color: var(--win); font-weight: bold; }
+
+/* ДРУЗЬЯ */
+.friends-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+.friend-box { text-align: center; }
+.friend-img { width: 100%; aspect-ratio: 1/1; border-radius: 18px; object-fit: cover; border: 1px solid var(--glass-border); margin-bottom: 8px; }
+.friend-tag { font-size: 0.75em; font-weight: 600; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; }
+.small-quote { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.7em; line-height: 1.4; color: var(--muted); }
+.underline { 
+  height: 2px; width: 100%; margin: 20px 0 12px 0;
+  background: radial-gradient(circle, #6a8cff 0%, rgba(106, 140, 255, 0.2) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: lineFlow 3s infinite alternate ease-in-out;
+}
+@keyframes lineFlow { 0% { opacity: 0.4; transform: scaleX(0.8); } 100% { opacity: 1; transform: scaleX(1); } }
+.trust-text { text-align: center; font-size: 0.75em; letter-spacing: 1.5px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+
+<div class="header-ui">
+    <button id="balance_btn" class="balance-btn">
+        <i class="fas fa-coins"></i> <span id="balance_display">0</span>
+    </button>
+</div>
+
+<div id="intro">
+  <div id="greeting"></div>
+  <div style="font-size: 0.75em; opacity: 0.4;">нажмите для входа</div>
+</div>
+
+<div id="slider">
+  
+  <section class="screen">
+    <div style="max-width: 400px; margin: auto;">
+      <div class="title">Игровая зона</div>
+      
+      <div class="card" id="auth_card">
+        <div class="auth-container">
+            <div id="user_profile" style="display: none; align-items: center; gap: 10px;">
+                <img id="user_pic" src="" style="width: 30px; height: 30px; border-radius: 50%;">
+                <span id="user_name" style="font-weight: bold; color: var(--win);"></span>
+            </div>
+            
+            <button id="login_btn" class="btn" style="background: #fff; color: #000;">
+                <i class="fab fa-google"></i> Войти через Google
+            </button>
+            
+            <div id="nick_section" style="width: 100%; display: none;">
+                <input type="text" id="nick_input" class="input-field" placeholder="Придумайте ник..." maxlength="12">
+                <button id="save_nick_btn" class="btn" style="margin-top: 10px;">Сохранить ник</button>
+            </div>
+        </div>
+      </div>
+
+      <div id="games_menu" style="display: none;">
+          <div class="games-row">
+              <div class="game-btn" onclick="openGame('mines')">МИНЫ 💣</div>
+              <div class="game-btn locked">CRASH 🚀<br><span style="font-size:0.7em; opacity:0.6">Скоро</span></div>
+              <div class="game-btn locked">RANDOM 🎲<br><span style="font-size:0.7em; opacity:0.6">Скоро</span></div>
+          </div>
+          
+          <div id="mines_interface" class="card">
+              <div class="title">Mines</div>
+              <div style="display: flex; gap: 10px;">
+                  <div style="flex:1">
+                      <label style="font-size: 0.6em; color: var(--muted);">Мины (1-24)</label>
+                      <input type="number" id="mines_count" class="input-field" value="3" min="1" max="24">
+                  </div>
+                  <div style="flex:1">
+                      <label style="font-size: 0.6em; color: var(--muted);">Ставка</label>
+                      <input type="number" id="bet_amount" class="input-field" value="100" min="10">
+                  </div>
+              </div>
+              
+              <div class="mines-grid" id="grid">
+                  </div>
+
+              <div id="game_controls">
+                  <button id="play_btn" class="btn">ИГРАТЬ</button>
+                  <button id="cashout_btn" class="btn" style="background: var(--win); display: none; color: #000;">ЗАБРАТЬ (<span id="cashout_val">0</span>)</button>
+              </div>
+              <div id="game_status" style="text-align: center; margin-top: 10px; font-size: 0.8em; height: 15px;"></div>
+          </div>
+      </div>
+
+      <div class="title" style="margin-top: 20px;">Топ 10 Богачей</div>
+      <div class="card">
+          <div class="leaderboard-list" id="leaderboard">
+              <div style="text-align: center; color: var(--muted); font-size: 0.8em;">Загрузка...</div>
+          </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="screen">
+    <div style="max-width: 400px; margin: auto;">
+      <div class="avatar-wrap">
+        <div class="avatar"><img src="https://raw.githubusercontent.com/veysoq-netizen/veysoq-netizen.github.io/main/1768672024094.jpg"></div>
+        <div class="nickname">весомый</div>
+      </div>
+      <div class="title">Кто я</div>
+      <div class="card">
+        <div class="info-line"><span class="info-label">Имя:</span><strong>Денис</strong></div>
+        <div class="info-line"><span class="info-label">Возраст:</span><strong>15 лет</strong></div>
+        <div class="info-line"><span class="info-label">Локация:</span><strong>Россия</strong></div>
+        <div class="info-line"><span class="info-label">Город:</span><strong>Ставрополь</strong></div>
+        <div style="height: 1px; background: var(--glass-border); margin: 12px 0;"></div>
+        <div class="info-line"><span class="info-label">My best friend:</span><strong>@MEP_B_3AKOHE_1</strong></div>
+        <div class="info-line"><span class="info-label">My girl:</span><strong>@ketttisq</strong></div>
+      </div>
+      <div class="title">Поддержка</div>
+      <div class="card">
+        <a href="http://t.me/send?start=IVAWgsxu9eaD" class="btn" style="background: #24a1de;"><i class="fas fa-wallet"></i> Отправить USDT</a>
+      </div>
+      <a href="https://t.me/vesomiy_canal" class="btn btn-secondary"><i class="fab fa-telegram"></i> Мой канал</a>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div style="max-width: 400px; margin: auto;">
+      <div class="title">Мои близкие</div>
+      <div class="card">
+        <div class="friends-row">
+          <div class="friend-box">
+            <img src="https://raw.githubusercontent.com/veysoq-netizen/veysoq-netizen.github.io/refs/heads/main/IMG_20260118_183053_329.jpg" class="friend-img">
+            <div class="friend-tag">best friend</div>
+            <div class="small-quote">«Друг — это тот, кто знает о тебе всё и всё-таки любит тебя»</div>
+          </div>
+          <div class="friend-box">
+            <img src="https://raw.githubusercontent.com/veysoq-netizen/veysoq-netizen.github.io/refs/heads/main/IMG_20260118_183041_557.jpg" class="friend-img">
+            <div class="friend-tag">my girl</div>
+            <div class="small-quote">«Каждая девушка не должна забывать, что ей не нужны те, кому не нужна она»</div>
+          </div>
+        </div>
+        <div class="underline"></div>
+        <div class="trust-text">ЛЮДИ КОТОРЫМ Я ДОВЕРЯЮ</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="pagination">
+  <div class="dot" id="dot0"></div>
+  <div class="dot active" id="dot1"></div>
+  <div class="dot" id="dot2"></div>
+</div>
+
+<script type="module">
+  // Импорт Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, set, get, update, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDlhQe-Zvtts_eACGoWtffOPJGo73lJbUQ",
+    authDomain: "denisbio-f58d8.firebaseapp.com",
+    databaseURL: "https://denisbio-f58d8-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "denisbio-f58d8",
+    storageBucket: "denisbio-f58d8.firebasestorage.app",
+    messagingSenderId: "685234506553",
+    appId: "1:685234506553:web:57436b2ead4c9ddafef6e8",
+    measurementId: "G-EV4DE435CK"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const provider = new GoogleAuthProvider();
+
+  // ПЕРЕМЕННЫЕ
+  let currentUser = null;
+  let userBalance = 0;
+  let userNick = "User";
+
+  // ЭЛЕМЕНТЫ DOM
+  const loginBtn = document.getElementById('login_btn');
+  const userProfile = document.getElementById('user_profile');
+  const gamesMenu = document.getElementById('games_menu');
+  const nickSection = document.getElementById('nick_section');
+  const balanceDisplay = document.getElementById('balance_display');
+  const balanceBtn = document.getElementById('balance_btn');
+
+  // 1. АВТОРИЗАЦИЯ
+  loginBtn.addEventListener('click', () => {
+    signInWithPopup(auth, provider).catch((error) => console.error(error));
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      loginBtn.style.display = 'none';
+      userProfile.style.display = 'flex';
+      gamesMenu.style.display = 'block';
+      
+      // Загрузка данных юзера
+      const userRef = ref(db, 'users/' + user.uid);
+      get(userRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          userBalance = data.balance || 0;
+          userNick = data.nick || user.displayName;
+          updateUI(data);
+          checkBonusCooldown(data.lastBonus);
+        } else {
+          // Новый юзер
+          set(userRef, {
+            email: user.email,
+            balance: 0,
+            nick: user.displayName,
+            photo: user.photoURL,
+            lastBonus: 0
+          });
+          userBalance = 0;
+          userNick = user.displayName;
+          updateUI({ nick: user.displayName, photo: user.photoURL });
+        }
+      });
+
+      // Слушаем изменения баланса в реальном времени
+      onValue(ref(db, 'users/' + user.uid + '/balance'), (snap) => {
+          userBalance = snap.val() || 0;
+          balanceDisplay.textContent = userBalance;
+      });
+
+    } else {
+      currentUser = null;
+      gamesMenu.style.display = 'none';
+      loginBtn.style.display = 'flex';
+    }
+  });
+
+  function updateUI(data) {
+      document.getElementById('user_name').textContent = data.nick || currentUser.displayName;
+      document.getElementById('user_pic').src = data.photo || currentUser.photoURL;
+      balanceDisplay.textContent = userBalance;
+      
+      if (!data.nick || data.nick === currentUser.displayName) {
+          nickSection.style.display = 'block';
+      } else {
+          nickSection.style.display = 'none';
+      }
+  }
+
+  // 2. СОХРАНЕНИЕ НИКА
+  document.getElementById('save_nick_btn').addEventListener('click', () => {
+      const newNick = document.getElementById('nick_input').value.trim();
+      if (newNick.length > 2 && currentUser) {
+          update(ref(db, 'users/' + currentUser.uid), { nick: newNick });
+          nickSection.style.display = 'none';
+          document.getElementById('user_name').textContent = newNick;
+          alert("Ник сохранен!");
+      }
+  });
+
+  // 3. БОНУС (БАЛАНС)
+  balanceBtn.addEventListener('click', () => {
+      if (!currentUser) return alert("Войдите в аккаунт!");
+      
+      const userRef = ref(db, 'users/' + currentUser.uid);
+      get(userRef).then((snap) => {
+          const data = snap.val();
+          const now = Date.now();
+          const cooldown = 6 * 60 * 60 * 1000; // 6 часов
+          
+          if (!data.lastBonus || (now - data.lastBonus) > cooldown) {
+              update(userRef, {
+                  balance: (data.balance || 0) + 1000,
+                  lastBonus: now
+              });
+              alert("+1000 монет получено!");
+              checkBonusCooldown(now);
+          } else {
+              const left = Math.ceil((cooldown - (now - data.lastBonus)) / 1000 / 60);
+              alert(`Подождите еще ${left} мин.`);
+          }
+      });
+  });
+
+  function checkBonusCooldown(lastBonus) {
+      const now = Date.now();
+      const cooldown = 6 * 60 * 60 * 1000;
+      if (lastBonus && (now - lastBonus) < cooldown) {
+          balanceBtn.classList.add('cooldown');
+      } else {
+          balanceBtn.classList.remove('cooldown');
+      }
+  }
+
+  // 4. ЛИДЕРБОРД
+  const leaderboardEl = document.getElementById('leaderboard');
+  const topUsersQuery = query(ref(db, 'users'), orderByChild('balance'), limitToLast(10));
+
+  onValue(topUsersQuery, (snapshot) => {
+      const users = [];
+      snapshot.forEach((child) => {
+          users.push(child.val());
+      });
+      users.sort((a, b) => b.balance - a.balance); // Сортировка от большего к меньшему
+      
+      leaderboardEl.innerHTML = "";
+      users.forEach((u, index) => {
+          const item = document.createElement('div');
+          item.className = 'lb-item';
+          item.innerHTML = `
+              <div class="lb-rank">#${index + 1}</div>
+              <div class="lb-name">${u.nick || 'Аноним'}</div>
+              <div class="lb-bal">${u.balance}</div>
+          `;
+          leaderboardEl.appendChild(item);
+      });
+  });
+
+  // 5. ИГРА МИНЫ
+  window.openGame = (game) => {
+      if (game === 'mines') {
+          const el = document.getElementById('mines_interface');
+          el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
+          createGrid();
+      }
+  };
+
+  const gridEl = document.getElementById('grid');
+  let gameActive = false;
+  let minesLocations = [];
+  let revealedCount = 0;
+  let currentBet = 0;
+  let currentMinesCount = 3;
+
+  function createGrid() {
+      gridEl.innerHTML = '';
+      gridEl.classList.remove('active');
+      for(let i=0; i<25; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.id = i;
+          cell.onclick = () => handleCellClick(i, cell);
+          gridEl.appendChild(cell);
+      }
+      document.getElementById('play_btn').style.display = 'block';
+      document.getElementById('cashout_btn').style.display = 'none';
+      document.getElementById('game_status').textContent = '';
+  }
+
+  document.getElementById('play_btn').addEventListener('click', () => {
+      const bet = parseInt(document.getElementById('bet_amount').value);
+      const mines = parseInt(document.getElementById('mines_count').value);
+
+      if (isNaN(bet) || bet < 10) return alert("Мин. ставка 10");
+      if (isNaN(mines) || mines < 1 || mines > 24) return alert("Мин от 1 до 24");
+      if (bet > userBalance) return alert("Недостаточно средств");
+
+      // Списание ставки
+      update(ref(db, 'users/' + currentUser.uid), { balance: userBalance - bet });
+      
+      currentBet = bet;
+      currentMinesCount = mines;
+      startGame(mines);
+  });
+
+  function startGame(minesCount) {
+      gameActive = true;
+      revealedCount = 0;
+      minesLocations = [];
+      
+      // Генерируем мины
+      while(minesLocations.length < minesCount) {
+          let r = Math.floor(Math.random() * 25);
+          if(minesLocations.indexOf(r) === -1) minesLocations.push(r);
+      }
+
+      createGrid(); // Сброс визуальный
+      gridEl.classList.add('active');
+      document.getElementById('play_btn').style.display = 'none';
+      document.getElementById('cashout_btn').style.display = 'none'; // Появится после 1 хода
+  }
+
+  function handleCellClick(id, cell) {
+      if (!gameActive || cell.classList.contains('revealed')) return;
+
+      cell.classList.add('revealed');
+
+      if (minesLocations.includes(id)) {
+          // БУМ
+          cell.innerHTML = '💣';
+          cell.classList.add('lose');
+          gameOver(false);
+      } else {
+          // УСПЕХ
+          cell.innerHTML = '💎';
+          cell.classList.add('win');
+          revealedCount++;
+          
+          // Расчет выигрыша
+          const multiplier = calculateMultiplier();
+          const winAmount = Math.floor(currentBet * multiplier);
+          
+          document.getElementById('cashout_val').textContent = winAmount;
+          document.getElementById('cashout_btn').style.display = 'block';
+          
+          if (revealedCount === (25 - currentMinesCount)) {
+              cashOut(); // Открыл всё поле
+          }
+      }
+  }
+
+  function calculateMultiplier() {
+      // Упрощенная формула: чем больше мин и открытых клеток, тем больше X
+      // (Total / (Total - Mines)) ^ Steps
+      // Для простоты: 
+      let coeff = 1;
+      for(let i=0; i<revealedCount; i++) {
+          coeff *= (25 - i) / (25 - currentMinesCount - i);
+      }
+      return coeff;
+  }
+
+  document.getElementById('cashout_btn').addEventListener('click', cashOut);
+
+  function cashOut() {
+      if(!gameActive) return;
+      const multiplier = calculateMultiplier();
+      const winAmount = Math.floor(currentBet * multiplier);
+      
+      update(ref(db, 'users/' + currentUser.uid), { balance: userBalance + winAmount });
+      document.getElementById('game_status').innerHTML = `<span style="color:#00ff88">Выиграно: ${winAmount}</span>`;
+      gameOver(true);
+  }
+
+  function gameOver(win) {
+      gameActive = false;
+      gridEl.classList.remove('active');
+      document.getElementById('play_btn').style.display = 'block';
+      document.getElementById('cashout_btn').style.display = 'none';
+      
+      // Показать все мины
+      document.querySelectorAll('.cell').forEach((c, idx) => {
+          if (minesLocations.includes(idx)) {
+              c.innerHTML = '💣';
+              if (!win) c.style.background = 'rgba(255, 71, 87, 0.3)';
+          }
+      });
+  }
+
+  // --- ОБЩАЯ ЛОГИКА ИНТЕРФЕЙСА (Слайдер, приветствие) ---
+  
+  // Приветствие
+  const hours = new Date().getHours();
+  let welcomeText = hours < 6 ? "Доброй ночи" : hours < 12 ? "Доброе утро" : hours < 18 ? "Добрый день" : "Добрый вечер";
+  let charIndex = 0;
+  function typeWriter() {
+    const el = document.getElementById("greeting");
+    if (el && charIndex <= welcomeText.length) {
+      el.textContent = welcomeText.slice(0, charIndex++);
+      setTimeout(typeWriter, 100);
+    }
+  }
+  typeWriter();
+  document.body.addEventListener('click', () => document.getElementById("intro").classList.add("hide"), { once: true });
+
+  // Слайдер
+  let currentScreen = 1; 
+  const slider = document.getElementById("slider");
+  const dots = [document.getElementById("dot0"), document.getElementById("dot1"), document.getElementById("dot2")];
+  let startX = 0;
+
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    let diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && currentScreen < 2) currentScreen++;
+      else if (diff < 0 && currentScreen > 0) currentScreen--;
+      updateSlider();
+    }
+  });
+
+  function updateSlider() {
+    slider.style.transform = `translateX(-${currentScreen * 100}vw)`;
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === currentScreen));
+  }
+
+  // Снег
+  setInterval(() => {
+    const f = document.createElement('div');
+    f.className = 'snowflake';
+    const depth = Math.random();
+    const size = (depth * 4 + 2) + 'px';
+    const duration = (15 - depth * 10) + 's'; 
+    f.style.left = Math.random() * 100 + 'vw';
+    f.style.top = '-10px';
+    f.style.width = size;
+    f.style.height = size;
+    f.style.opacity = 0.3 + depth * 0.7;
+    f.style.animation = `fall ${duration} linear forwards, sway ${Math.random() * 2 + 2 + 's'} ease-in-out infinite alternate`;
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), parseFloat(duration) * 1000);
+  }, 200);
+
+</script>
+</body>
+</html>
