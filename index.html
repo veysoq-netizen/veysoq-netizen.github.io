@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denis | Bio</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Playfair+Display:italic&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: rgba(255, 255, 255, 0.05);
+  --text: #eaeaf0;
+  --muted: #9a9aa7;
+  --accent: #6a8cff;
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ФОНОВЫЕ СЛОИ */
+.bg-layer {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at 50% 50%, rgba(106, 140, 255, 0.03) 0%, transparent 80%);
+  z-index: -2;
+}
+
+/* ВСПЫШКА (ИСПРАВЛЕНО) */
+#flash-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50; /* Поверх всего для видимости */
+  opacity: 0;
+  mix-blend-mode: screen;
+  transition: opacity 0.4s ease-out;
+}
+
+/* СЛАЙДЕР */
+#slider {
+  display: flex;
+  width: 200vw;
+  height: 100vh;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.screen {
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 40px 20px 80px 20px;
+}
+
+/* ИНТРО */
+#intro {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: var(--bg);
+  z-index: 100;
+  transition: 0.8s ease;
+}
+#intro.hide { opacity: 0; pointer-events: none; }
+#greeting { font-size: 2.2em; font-weight: 600; margin-bottom: 10px; }
+
+/* КАРТОЧКИ */
+.title { color: var(--accent); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; text-align: center; }
+.card { background: var(--card); border-radius: 26px; padding: 22px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); margin-bottom: 25px; }
+
+.avatar-wrap { display: flex; justify-content: center; margin-bottom: 30px; }
+.avatar { width: 110px; height: 110px; border-radius: 50%; border: 2px solid var(--accent); padding: 5px; box-shadow: 0 0 20px rgba(106, 140, 255, 0.2); }
+.avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+.info-line { margin: 8px 0; font-size: 0.9em; }
+.info-label { color: var(--muted); margin-right: 6px; }
+
+.btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--accent); color: white; text-decoration: none; padding: 14px; border-radius: 14px; font-weight: 600; margin-top: 10px; font-size: 0.9em; }
+.btn-secondary { background: rgba(255, 255, 255, 0.05); }
+
+/* БЛИЗКИЕ */
+.friends-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.friend-box { text-align: center; }
+.friend-img { width: 100%; aspect-ratio: 1/1; border-radius: 18px; object-fit: cover; border: 1px solid var(--glass-border); margin-bottom: 8px; }
+.friend-tag { font-size: 0.7em; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+
+/* ПЕРЕЛИВАЮЩАЯСЯ ЛИНИЯ (НОВОЕ) */
+.underline { 
+  height: 2px; 
+  width: 100%; 
+  margin: 15px 0;
+  background: radial-gradient(circle, #6a8cff 0%, rgba(106, 140, 255, 0.2) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: lineFlow 3s infinite alternate ease-in-out;
+}
+
+@keyframes lineFlow {
+  0% { opacity: 0.4; transform: scaleX(0.85); filter: brightness(0.8); }
+  100% { opacity: 1; transform: scaleX(1); filter: brightness(1.5); }
+}
+
+.trust-footer { text-align: center; }
+.trust-text { font-size: 0.75em; color: var(--text); letter-spacing: 1.5px; font-weight: 600; }
+
+/* ЦИТАТА */
+.quote-box { margin-top: 30px; text-align: center; padding: 0 10px; }
+.quote-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1em; line-height: 1.5; color: var(--text); }
+.quote-author { font-size: 0.6em; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-top: 10px; }
+
+.snow { position: fixed; background: white; border-radius: 50%; pointer-events: none; z-index: 0; }
+@keyframes fall { from { top: -10px; } to { top: 110vh; } }
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div id="flash-overlay"></div>
+
+<div id="intro">
+  <div id="greeting"></div>
+  <div style="font-size: 0.75em; opacity: 0.4;">нажмите для просмотра</div>
+</div>
+
+<div id="slider">
+  <section class="screen">
+    <div style="max-width: 400px; margin: auto;">
+      <div class="avatar-wrap"><div class="avatar"><img src="https://raw.githubusercontent.com/veysoq-netizen/veysoq-netizen.github.io/main/1768672024094.jpg"></div></div>
+
+      <div class="title">Кто я</div>
+      <div class="card">
+        <div class="info-line"><span class="info-label">Имя:</span><strong>Денис</strong></div>
+        <div class="info-line"><span class="info-label">Возраст:</span><strong>15 лет</strong></div>
+        <div class="info-line"><span class="info-label">Локация:</span><strong>Россия</strong></div>
+        <div class="info-line"><span class="info-label">Город:</span><strong>Ставрополь</strong></div>
+        <div style="height: 1px; background: var(--glass-border); margin: 12px 0;"></div>
+        <div class="info-line"><span class="info-label">My best friend:</span><strong>@MEP_B_3AKOHE_1</strong></div>
+        <div class="info-line"><span class="info-label">My girl:</span><strong>@ketttisq</strong></div>
+      </div>
+
+      <div class="title">Поддержка</div>
+      <div class="card">
+        <p style="font-size: 0.8em; color: var(--muted); text-align: center; margin-bottom: 12px;">Поддержать творчество через Cryptobot</p>
+        <a href="http://t.me/send?start=IVAWgsxu9eaD" class="btn" style="background: #24a1de;"><i class="fas fa-wallet"></i> Отправить USDT</a>
+      </div>
+
+      <a href="https://t.me/vesomiy_canal" class="btn btn-secondary"><i class="fab fa-telegram"></i> Мой канал</a>
+      <div style="text-align: center; color: var(--muted); font-size: 0.7em; margin-top: 30px; opacity: 0.4;">смахни вправо <i class="fas fa-chevron-right"></i></div>
+    </div>
+  </section>
+
+  <section class="screen">
+    <div style="max-width: 400px; margin: auto;">
+      <div class="title">Мои близкие</div>
+      <div class="card">
+        <div class="friends-row">
+          <div class="friend-box">
+            <img src="https://raw.githubusercontent.com/veysoq-netizen/veysoq-netizen.github.io/refs/heads/main/IMG_20260118_183053_329.jpg" class="friend-img">
+            <div class="friend-tag">best friend</div>
+          </div>
+          <div class="friend-box">
+            <img src="https://raw.githubusercontent.com/veysoq-netizen/veysoq-netizen.github.io/refs/heads/main/IMG_20260118_183041_557.jpg" class="friend-img">
+            <div class="friend-tag">my girl</div>
+          </div>
+        </div>
+        
+        <div class="trust-footer">
+          <div class="underline"></div>
+          <div class="trust-text">ЛЮДИ КОТОРЫМ Я ДОВЕРЯЮ</div>
+        </div>
+      </div>
+
+      <div class="quote-box">
+        <div class="quote-text">«Друг — это тот, кто знает о тебе всё и всё-таки любит тебя»</div>
+        <div class="quote-author">— Элберт Хаббард</div>
+      </div>
+
+      <div style="text-align: center; color: var(--muted); font-size: 0.7em; margin-top: 50px; opacity: 0.4;"><i class="fas fa-chevron-left"></i> назад</div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* 1. ПРИВЕТСТВИЕ */
+const hours = new Date().getHours();
+let welcomeText = hours < 6 ? "Доброй ночи" : hours < 12 ? "Доброе утро" : hours < 18 ? "Добрый день" : "Добрый вечер";
+let charIndex = 0;
+function typeWriter() {
+  if (charIndex <= welcomeText.length) {
+    document.getElementById("greeting").textContent = welcomeText.slice(0, charIndex++);
+    setTimeout(typeWriter, 100);
+  }
+}
+typeWriter();
+
+/* 2. ВХОД */
+document.body.addEventListener('click', () => {
+  document.getElementById("intro").classList.add("hide");
+}, { once: true });
+
+/* 3. СВАЙП И ВСПЫШКИ */
+let currentScreen = 0;
+const slider = document.getElementById("slider");
+const flash = document.getElementById("flash-overlay");
+let startX = 0;
+
+document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+document.addEventListener('touchend', e => {
+  let endX = e.changedTouches[0].clientX;
+  let diff = startX - endX;
+
+  if (Math.abs(diff) > 50) {
+    if (diff > 0 && currentScreen === 0) {
+      triggerFlash("rgba(0, 100, 255, 0.6)"); // Яркий синий вправо
+      currentScreen = 1;
+    } else if (diff < 0 && currentScreen === 1) {
+      triggerFlash("rgba(255, 0, 0, 0.6)"); // Яркий красный влево
+      currentScreen = 0;
+    }
+    slider.style.transform = `translateX(-${currentScreen * 100}vw)`;
+  }
+});
+
+function triggerFlash(color) {
+  flash.style.background = `radial-gradient(circle, ${color} 0%, transparent 80%)`;
+  flash.style.opacity = "1";
+  // Сначала держим ярко, потом гасим
+  setTimeout(() => {
+    flash.style.opacity = "0";
+  }, 50); 
+}
+
+/* 4. СНЕЖИНКИ */
+function createSnow() {
+  for(let i=0; i<20; i++){
+    const flake = document.createElement("div");
+    flake.className = "snow";
+    flake.style.width = flake.style.height = `${Math.random()*3+2}px`;
+    flake.style.left = Math.random()*100+"vw";
+    flake.style.opacity = Math.random()*0.4;
+    flake.style.animation = `fall ${12 + Math.random()*10}s linear infinite`;
+    document.body.appendChild(flake);
+  }
+}
+createSnow();
+</script>
+</body>
+</html>
