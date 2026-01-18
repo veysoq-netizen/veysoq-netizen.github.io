@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denis | Bio</title>
+
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: rgba(255,255,255,.05);
+  --text: #eaeaf0;
+  --muted: #9a9aa7;
+  --accent: #6a8cff;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+body { min-height: 200vh; }
+
+/* INTRO */
+#intro {
+  position: fixed;
+  inset: 0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background: var(--bg);
+  z-index:100;
+  transition:.6s;
+}
+
+#intro.hide {
+  opacity:0;
+  pointer-events:none;
+  transform:scale(1.05);
+}
+
+#greeting {
+  font-size:2.2em;
+  margin-bottom:12px;
+}
+
+#tap { font-size:.9em; opacity:.6; }
+
+/* MAIN */
+main {
+  max-width:480px;
+  margin:auto;
+  padding:120px 20px;
+}
+
+.section {
+  margin-bottom:60px;
+  opacity:0;
+  transform:translateY(30px);
+  transition:.7s ease;
+}
+
+.section.show {
+  opacity:1;
+  transform:none;
+}
+
+.title {
+  color: var(--accent);
+  margin-bottom:14px;
+}
+
+.card {
+  background: var(--card);
+  border-radius:18px;
+  padding:20px;
+  backdrop-filter: blur(10px);
+}
+
+/* AVATAR */
+.avatar-wrap {
+  display:flex;
+  justify-content:center;
+  margin-bottom:30px;
+}
+
+.avatar {
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  background: linear-gradient(135deg,#6a8cff,#9f6aff);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:2.5em;
+  font-weight:700;
+  box-shadow:0 0 40px rgba(106,140,255,.4);
+}
+
+/* BLUR TEXT */
+.blur { filter: blur(6px); }
+
+/* LINKS */
+a {
+  color: var(--accent);
+  text-decoration:none;
+  word-break:break-all;
+}
+
+/* LANGUAGE */
+#lang {
+  position:fixed;
+  top:15px;
+  right:15px;
+  font-size:.85em;
+  opacity:.7;
+}
+
+/* SNOW */
+.snow {
+  position:fixed;
+  top:-10px;
+  width:4px;
+  height:4px;
+  background:white;
+  border-radius:50%;
+  animation:fall linear infinite;
+  pointer-events:none;
+}
+
+@keyframes fall {
+  to { transform:translateY(110vh); opacity:0; }
+}
+</style>
+</head>
+<body>
+
+<div id="lang">RU / EN</div>
+
+<div id="intro">
+  <div id="greeting"></div>
+  <div id="tap">нажмите в любое место</div>
+</div>
+
+<main>
+
+  <div class="avatar-wrap">
+    <div class="avatar">D</div>
+  </div>
+
+  <div class="section">
+    <div class="title">Bio</div>
+    <div class="card">
+      Name: Denis<br>
+      Age: 15<br>
+      Country: Russia
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="title">Games</div>
+    <div class="card">
+      Brawl Stars, PUBG Mobile, Valorant, DDNet.<br>
+      Also trolling chats.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="title">Contacts</div>
+    <div class="card">
+      tg channel: <a href="https://t.me/vesomiy_canal">t.me/vesomiy_canal</a><br>
+      user: @BECOMbIU<br>
+      friends: <span class="blur">________</span><br>
+      def: <span class="blur">________</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="card">
+      Support Cryptobot (USDT):<br>
+      <a href="http://t.me/send?start=IVAWgsxu9eaD">t.me/send?start=IVAWgsxu9eaD</a>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* TIME GREETING */
+const h=new Date().getHours();
+let t="Доброй ночи";
+if(h>=6&&h<12)t="Доброе утро";
+else if(h>=12&&h<18)t="Добрый день";
+else if(h>=18)t="Добрый вечер";
+
+let i=0;
+const g=document.getElementById("greeting");
+(function type(){
+ if(i<=t.length){g.textContent=t.slice(0,i++);setTimeout(type,120);}
+})();
+
+/* INTRO CLICK */
+document.body.onclick=()=>document.getElementById("intro").classList.add("hide");
+
+/* REVEAL */
+const obs=new IntersectionObserver(e=>{
+ e.forEach(x=>x.isIntersecting&&x.target.classList.add("show"));
+});
+document.querySelectorAll(".section").forEach(s=>obs.observe(s));
+
+/* PARALLAX */
+document.addEventListener("mousemove",e=>{
+ document.body.style.backgroundPosition=
+ `${e.clientX/50}px ${e.clientY/50}px`;
+});
+
+/* SOUND */
+const ctx=new AudioContext();
+function beep(f,d){
+ const o=ctx.createOscillator(),g=ctx.createGain();
+ o.connect(g);g.connect(ctx.destination);
+ o.frequency.value=f;g.gain.value=.02;
+ o.start();setTimeout(()=>o.stop(),d);
+}
+window.addEventListener("scroll",()=>beep(280,30));
+
+/* SNOW */
+for(let i=0;i<30;i++){
+ const s=document.createElement("div");
+ s.className="snow";
+ s.style.left=Math.random()*100+"vw";
+ s.style.animationDuration=6+Math.random()*6+"s";
+ s.style.animationDelay=Math.random()*5+"s";
+ document.body.appendChild(s);
+}
+
+/* EASTER EGG */
+let hold;
+document.body.addEventListener("touchstart",()=>hold=setTimeout(()=>{
+ alert("👀 Ты нашёл пасхалку");
+},3000));
+document.body.addEventListener("touchend",()=>clearTimeout(hold));
+</script>
+
+</body>
+</html>
